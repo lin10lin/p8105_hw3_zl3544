@@ -1,0 +1,54 @@
+---
+title: "p8105_hw3_zl3544"
+output: html_document
+date: "2024-10-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lubridate)
+library(ggplot2)
+library(ggridges)
+library(tidyverse)
+library(p8105.datasets)
+```
+
+# Problem 1
+
+## Exploration of the dataset
+```{r}
+# Display the structure of the dataset
+str(ny_noaa)
+
+# Get the number of rows and columns
+nrow(ny_noaa)
+ncol(ny_noaa)
+
+# Display the dimensions of the dataset
+dim(ny_noaa)
+
+# Show the structure again for a detailed overview
+str(ny_noaa)
+
+# Provide a summary of the dataset
+summary(ny_noaa)
+```
+### Description of the dataset
+
+The dataset have 2595176 and 7 columns, which means that the ny_noaa dataset has 2,595,176 observations and 7 variables. The variables includes: id(Weather station identifier),date(Date of the observation), prcp(Precipitation (tenths of mm)), snow(Snowfall (mm)), snwd(Snow depth (mm)),tmax(Maximum temperature (tenths of degrees C)), tmin(Minimum temperature (tenths of degrees C)). In the summary, we can see that: prcp has a mean 29.82, the min is 0 and the max is 22860; snow has a mean 5, the min is -13 and the max is 10160; snwd has a mean 37.3, the min is 0 and the max is 9195. Also， there are missing value in some variables.
+
+### Missing data
+
+Caculate the percentage of missing data:
+```{r}
+ny_noaa %>%
+  summarise(
+    missing_prcp = mean(is.na(prcp)) * 100,
+    missing_snow = mean(is.na(snow)) * 100,
+    missing_snwd = mean(is.na(snwd)) * 100,
+    missing_tmax = mean(is.na(tmax)) * 100,
+    missing_tmin = mean(is.na(tmin)) * 100
+  )
+
+```
+5.62% of prcp values are missing, 14.68% of snow values are missing,22.80% of snwd values are missing, 43.69% tmax are missing, 46.23% of tmin are missing.
