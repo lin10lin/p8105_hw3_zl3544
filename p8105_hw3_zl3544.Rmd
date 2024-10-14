@@ -317,3 +317,78 @@ citi_df=bind_rows(jan_2020, jan_2024, july_2020, july_2024) %>%
   janitor::clean_names()
 head(citi_df)
 ```
+
+## Total number of rides in each combination of year and month separating casual riders and Citi Bike members
+```{r}
+total_rides_table=citi_df %>% 
+  mutate(number=1) %>% 
+  group_by(member_casual, year, month) %>% 
+  summarise(total_rides = sum(number), .groups = 'keep')
+total_rides_table
+```
+
+## The 5 most popular starting stations for July 2024:
+```{r}
+the_5_starting=citi_df %>% 
+  mutate(number=1) %>% 
+  filter(month == 'July',year == 2024) %>% 
+  group_by(start_station_name) %>% 
+  summarise(total_start=sum(number), .groups='keep') %>% 
+  arrange(desc(total_start)) %>% 
+  head(5)
+the_5_starting
+```
+
+## The investigation plot
+Frist, create the group with the medium number information:
+```{r}
+group_plot=citi_df %>% 
+  group_by(weekdays, month, year) %>% 
+  summarise(median_of_duration = median(duration), .groups = 'keep') %>% 
+  mutate(weekdays = factor(weekdays, levels = c('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'))) %>% 
+  ggplot(aes(x = weekdays, y = median_of_duration, colour = month, group = month)) +
+  geom_line()+
+  geom_point(size = 3) +
+  theme_minimal()+
+  theme(legend.position='bottom',
+      axis.text.x = element_text(angle = 33,vjust = 0.88,hjust = 0.77))+
+  facet_grid(. ~ year)+
+  labs(
+    title = "effect on median ride duration",
+    x = "weekdays",
+    y = "median ride duration")
+group_plot
+```
+
+## Plot the distribution of ride duration:
+```{r}
+distribution_tide=citi_df %>% 
+  filter(year == '2024') %>% 
+  group_by(member_casual, month, rideable_type) %>% 
+  mutate(member_casual=factor(member_casual, levels=c('member', 'casual')), rideable_type=factor(rideable_type, levels=c('electric_bike','classic_bike' ))) %>% 
+  ggplot(aes(x=duration, y=member_casual,fill = rideable_type))+
+  geom_density_ridges(scale = .9, alpha = .2)+
+  theme_minimal()+
+  facet_grid(. ~ month)+
+  labs(
+    title = "distribution of duration",
+    x = "duration",
+    y = "membership type")
+distribution_tide
+```
+The plot shows that most of the time are distributed within 100 minutes, so we plot another plot under the condition of duration under 100 to get a closer look:
+```{r}
+distribution_tide=citi_df %>% 
+  filter(year == '2024', duration<100) %>% 
+  group_by(member_casual, month, rideable_type) %>% 
+  mutate(member_casual=factor(member_casual, levels=c('member', 'casual')), rideable_type=factor(rideable_type, levels=c('electric_bike','classic_bike' ))) %>% 
+  ggplot(aes(x=duration, y=member_casual,fill = rideable_type))+
+  geom_density_ridges(scale = .9, alpha = .2)+
+  theme_minimal()+
+  facet_grid(. ~ month)+
+  labs(
+    title = "distribution of duration",
+    x = "duration",
+    y = "membership type")
+distribution_tide
+```
