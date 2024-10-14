@@ -13,7 +13,6 @@ library(tidyverse)
 library(p8105.datasets)
 library(patchwork)
 library(hexbin) 
-library(gridExtra)
 ```
 
 # Problem 1
@@ -116,18 +115,20 @@ print(avg_tmax_plot)
 ```
 
 The plot indicates that there are significant differences  between the average max temperature in January and in July. The plot shows mean maximum temperatures in January below 0°C for many stations, mean maximum temperatures in July generally around 25°C to 30°C. There are some outliers in January, for example, the year 2005, it indicates that the year 2005 is extremely cold in the winter, there are also some outliers in July. But the temperature in July is always higher than January.
+## Combined plot
 ```{r}
 # Hexbin plot for tmax vs tmin
 hexbin_plot = ggplot(ny_noaa_cleaned, aes(x = tmin, y = tmax)) + 
   geom_hex() + 
-  labs(x = "t_min (°C)",
+  labs(title = "Relationship Between Minimum and Maximum Temperatures",
+       x = "t_min (°C)",
        y = "t_max (°C)")+
   theme_minimal()
-
 ```
 ```{r}
-violin_plot = ny_noaa_cleaned |>
-  filter(snow > 0 & snow< 100) |>
+# Plot showing the distribution of snowfall values
+violin_plot = ny_noaa_cleaned %>% 
+  filter(snow > 0 & snow< 100) %>% 
   ggplot(aes(x = as.factor(year), y =snow, color = as.character(year))) + 
   geom_violin()+
   labs(
@@ -138,4 +139,86 @@ violin_plot = ny_noaa_cleaned |>
 theme(legend.position='none',
         axis.text.x = element_text(angle = 60,vjust = 0.88,hjust = 0.77))
 hexbin_plot + violin_plot + plot_layout(heights = c(3,2))
+```
+
+# Problem 2
+## Read data
+```{r}
+demo= read_csv('./data/nhanes_covar.csv',na = c("NA", ".", ""), skip = 4) %>% 
+  janitor::clean_names()
+accelerometer=read_csv('./data/nhanes_accel.csv', na = c("NA", ".", "")) %>% 
+  janitor::clean_names()
+```
+Notice that the accelerometer dataset is not tidy, "min1","min2",...
+
+## Data cleaning
+
+Merge, tidy and clean the data, exclude participants less than 21 years of age, and those with missing demographic data, and encode data with reasonable variable classes:
+```{r}
+demo=demo %>% 
+  filter(age>=21) %>% 
+  drop_na
+anti_join(demo, accelerometer, by = "seqn")
+merged_df= left_join(demo, accelerometer, by = "seqn") %>% 
+  pivot_longer(
+    min1:min1440,
+    names_to = "minute",
+    values_to = "MIMS"
+  ) %>% 
+  mutate(
+    sex = factor(sex, levels = c(1, 2), labels = c('male','female')),
+    education = factor(education, levels = c(1, 2, 3), labels = c('Less than high school','High school equivalent','More than high school')),
+    ) 
+head(merged_df)
+```
+## Produce a reader-friendly table for the number of men and women in each education category
+```{r}
+count_sex_education=merged_df %>% 
+  select(seqn,sex,education) %>% 
+  #ensuring that only unique entries are retained
+  unique() %>% 
+  # will be used to count participants
+  mutate(num = 1) %>% 
+  # The data is grouped by sex and education, and the total count (number) is calculated for each group
+  group_by(sex, education) %>% 
+  summarise(number = sum(num), .groups = 'keep')
+reader_table= count_sex_education %>% 
+  pivot_wider(
+    names_from = 'education',
+    values_from = 'number'
+  )
+reader_table
+```
+Then transformed the table to graph to get a clearer view:
+```{r}
+plot_count_sex_education=merged_df %>% 
+  select(seqn,sex,education) %>% 
+  #ensuring that only unique entries are retained
+  unique() %>% 
+  # will be used to count participants
+  mutate(num = 1) %>% 
+  # The data is grouped by sex and education, and the total count (number) is calculated for each group
+  group_by(sex, education) %>% 
+  summarise(number = sum(num), .groups = 'keep') %>% 
+  ggplot(aes(x = education, y = number))+
+  theme_minimal()+
+  labs(title=" The number of men and women in each education category")+
+  theme(axis.text.x = element_text(angle = 33,vjust = 0.88,hjust = 0.77))+
+  geom_col(aes(fill=sex), position = position_dodge2(preserve = 'single')) +
+  geom_text(aes(label=number), 
+            position = position_dodge2(width = 1, preserve = 'single'), 
+            vjust = -0.3, hjust = 0.6)
+plot_count_sex_education
+```
+Create a visualization of the age distributions for men and women in each education category:
+```{r}
+distribution_sex=merged_df %>% 
+  select(seqn, sex, education) %>% 
+  unique() %>% 
+  ggplot(aes(x = education)) +
+  geom_bar(aes(fill = sex), position = 'fill')+
+  labs(title="The age distributions for men and women in each education category")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 33,vjust = 0.88,hjust = 0.77))
+distribution_sex
 ```
