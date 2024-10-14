@@ -11,6 +11,9 @@ library(ggplot2)
 library(ggridges)
 library(tidyverse)
 library(p8105.datasets)
+library(patchwork)
+library(hexbin) 
+library(gridExtra)
 ```
 
 # Problem 1
@@ -113,3 +116,26 @@ print(avg_tmax_plot)
 ```
 
 The plot indicates that there are significant differences  between the average max temperature in January and in July. The plot shows mean maximum temperatures in January below 0°C for many stations, mean maximum temperatures in July generally around 25°C to 30°C. There are some outliers in January, for example, the year 2005, it indicates that the year 2005 is extremely cold in the winter, there are also some outliers in July. But the temperature in July is always higher than January.
+```{r}
+# Hexbin plot for tmax vs tmin
+hexbin_plot = ggplot(ny_noaa_cleaned, aes(x = tmin, y = tmax)) + 
+  geom_hex() + 
+  labs(x = "t_min (°C)",
+       y = "t_max (°C)")+
+  theme_minimal()
+
+```
+```{r}
+violin_plot = ny_noaa_cleaned |>
+  filter(snow > 0 & snow< 100) |>
+  ggplot(aes(x = as.factor(year), y =snow, color = as.character(year))) + 
+  geom_violin()+
+  labs(
+    x = "Year",
+    y = "Snowfall (mm)",
+    title = "Distribution of Snowfall Values Greater Than 0 and Less Than 100 by Year"
+  ) +
+theme(legend.position='none',
+        axis.text.x = element_text(angle = 60,vjust = 0.88,hjust = 0.77))
+hexbin_plot + violin_plot + plot_layout(heights = c(3,2))
+```
