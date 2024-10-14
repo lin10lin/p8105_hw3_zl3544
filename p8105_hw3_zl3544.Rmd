@@ -52,3 +52,37 @@ ny_noaa %>%
 
 ```
 5.62% of prcp values are missing, 14.68% of snow values are missing,22.80% of snwd values are missing, 43.69% tmax are missing, 46.23% of tmin are missing.
+
+## Data cleaning
+```{r}
+ny_noaa_cleaned= ny_noaa %>%
+  janitor::clean_names() %>% 
+  mutate(
+    year = year(date),
+    month = month(date),
+    day = day(date),
+    prcp = as.numeric(prcp)/10,
+    tmax = as.numeric(tmax)/10,
+    tmin = as.numeric(tmin)/10
+  ) %>% 
+  filter(tmax > tmin | is.na(tmax) | is.na(tmin)) %>% 
+  filter(!(is.na(snow) & is.na(snwd) & is.na(tmax) & is.na(tmin) & is.na(prcp)))
+head(ny_noaa_cleaned)
+```
+The data cleaning process: 
+
+* Create separate variables for year, month, and day. 
+
+* Ensure observations for temperature, precipitation, and snowfall are given in reasonable units.
+
+* Ensures that only keep observations where the temperature data makes sense (i.e., maximum temperatures are logically higher than minimum temperatures)
+
+* Filtered out rows in a dataset where all of the specified variables (snow, snwd, tmax, tmin, and prcp) are missing.
+
+### Most common snowfall values:
+```{r}
+ny_noaa_cleaned %>% 
+  count(snow) %>% 
+  arrange(desc(n)) 
+```
+According to the table, 0 is the most common snowfall value.

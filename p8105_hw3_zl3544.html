@@ -458,6 +458,63 @@ missing,22.80% of snwd values are missing, 43.69% tmax are missing,
 46.23% of tmin are missing.</p>
 </div>
 </div>
+<div id="data-cleaning" class="section level2">
+<h2>Data cleaning</h2>
+<pre class="r"><code>ny_noaa_cleaned= ny_noaa %&gt;%
+  janitor::clean_names() %&gt;% 
+  mutate(
+    year = year(date),
+    month = month(date),
+    day = day(date),
+    prcp = as.numeric(prcp)/10,
+    tmax = as.numeric(tmax)/10,
+    tmin = as.numeric(tmin)/10
+  ) %&gt;% 
+  filter(tmax &gt; tmin | is.na(tmax) | is.na(tmin)) %&gt;% 
+  filter(!(is.na(snow) &amp; is.na(snwd) &amp; is.na(tmax) &amp; is.na(tmin) &amp; is.na(prcp)))
+head(ny_noaa_cleaned)</code></pre>
+<pre><code>## # A tibble: 6 × 10
+##   id          date        prcp  snow  snwd  tmax  tmin  year month   day
+##   &lt;chr&gt;       &lt;date&gt;     &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
+## 1 US1NYAB0001 2007-11-17   0.3     3     0    NA    NA  2007    11    17
+## 2 US1NYAB0001 2007-11-18   0       0    NA    NA    NA  2007    11    18
+## 3 US1NYAB0001 2007-11-19   0       0     0    NA    NA  2007    11    19
+## 4 US1NYAB0001 2007-11-20   2.5     0     0    NA    NA  2007    11    20
+## 5 US1NYAB0001 2007-11-21   7.1     0     0    NA    NA  2007    11    21
+## 6 US1NYAB0001 2007-11-22   0.8     0    NA    NA    NA  2007    11    22</code></pre>
+<p>The data cleaning process:</p>
+<ul>
+<li><p>Create separate variables for year, month, and day.</p></li>
+<li><p>Ensure observations for temperature, precipitation, and snowfall
+are given in reasonable units.</p></li>
+<li><p>Ensures that only keep observations where the temperature data
+makes sense (i.e., maximum temperatures are logically higher than
+minimum temperatures)</p></li>
+<li><p>Filtered out rows in a dataset where all of the specified
+variables (snow, snwd, tmax, tmin, and prcp) are missing.</p></li>
+</ul>
+<div id="most-common-snowfall-values" class="section level3">
+<h3>Most common snowfall values:</h3>
+<pre class="r"><code>ny_noaa_cleaned %&gt;% 
+  count(snow) %&gt;% 
+  arrange(desc(n)) </code></pre>
+<pre><code>## # A tibble: 282 × 2
+##     snow       n
+##    &lt;int&gt;   &lt;int&gt;
+##  1     0 2007240
+##  2    NA  308654
+##  3    25   30981
+##  4    13   23082
+##  5    51   18253
+##  6    76   10159
+##  7     8    9959
+##  8     5    9742
+##  9    38    9186
+## 10     3    8786
+## # ℹ 272 more rows</code></pre>
+<p>According to the table, 0 is the most common snowfall value.</p>
+</div>
+</div>
 </div>
 
 
