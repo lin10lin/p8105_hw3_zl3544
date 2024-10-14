@@ -777,6 +777,37 @@ consistently report higher activity levels than men, particularly in the
 “High School Equivalent” and “More than High School” groups.</p>
 </div>
 </div>
+<div id="problem-3" class="section level1">
+<h1>Problem 3</h1>
+<p>Read the data:</p>
+<pre class="r"><code>jan_2020=read.csv(&#39;./data/citi/Jan 2020 Citi.csv&#39;) %&gt;% 
+  mutate(month = &quot;January&quot;, year = &quot;2020&quot;)
+jan_2024=read.csv(&#39;./data/citi/Jan 2024 Citi.csv&#39;) %&gt;% 
+  mutate(month = &quot;January&quot;, year = &quot;2024&quot;)
+july_2020=read.csv(&#39;./data/citi/July 2020 Citi.csv&#39;) %&gt;% 
+  mutate(month = &quot;July&quot;, year = &quot;2020&quot;)
+july_2024=read.csv(&#39;./data/citi/July 2024 Citi.csv&#39;) %&gt;% 
+   mutate(month = &quot;July&quot;, year = &quot;2024&quot;)</code></pre>
+<p>Merge the datasets together:</p>
+<pre class="r"><code>citi_df=bind_rows(jan_2020, jan_2024, july_2020, july_2024) %&gt;% 
+  distinct() %&gt;% 
+  janitor::clean_names()
+head(citi_df)</code></pre>
+<pre><code>##            ride_id rideable_type  weekdays  duration         start_station_name
+## 1 4BE06CB33B037044  classic_bike   Tuesday 15.333267     Columbus Ave &amp; W 95 St
+## 2 26886E034974493B  classic_bike Wednesday  5.309467            2 Ave &amp; E 96 St
+## 3 24DC56060EBE6260  classic_bike    Friday  9.691800 Columbia St &amp; Rivington St
+## 4 EEDC1053582D02E5  classic_bike    Sunday  6.996183     W 84 St &amp; Columbus Ave
+## 5 2CD4BD4CEE2E50A9  classic_bike    Friday  2.849500     Forsyth St &amp; Broome St
+## 6 E18682F9A4E501BB  classic_bike    Sunday 25.523467       Allen St &amp; Hester St
+##           end_station_name member_casual   month year
+## 1    E 53 St &amp; Madison Ave        member January 2020
+## 2         1 Ave &amp; E 110 St        member January 2020
+## 3  Grand St &amp; Elizabeth St        member January 2020
+## 4   Columbus Ave &amp; W 72 St        member January 2020
+## 5  Suffolk St &amp; Stanton St        member January 2020
+## 6 Atlantic Ave &amp; Furman St        member January 2020</code></pre>
+</div>
 
 
 

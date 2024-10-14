@@ -296,3 +296,24 @@ plot_less+plot_high+plot_more
 ```
 
 Overall, activity levels rises from the first 12 hour of a day, and reach their highest point around midday for all educational groups,there is a notable decline in activity during the late evening hours.  Women consistently report higher activity levels than men, particularly in the "High School Equivalent" and "More than High School" groups. 
+
+# Problem 3
+
+Read the data:
+```{r}
+jan_2020=read.csv('./data/citi/Jan 2020 Citi.csv') %>% 
+  mutate(month = "January", year = "2020")
+jan_2024=read.csv('./data/citi/Jan 2024 Citi.csv') %>% 
+  mutate(month = "January", year = "2024")
+july_2020=read.csv('./data/citi/July 2020 Citi.csv') %>% 
+  mutate(month = "July", year = "2020")
+july_2024=read.csv('./data/citi/July 2024 Citi.csv') %>% 
+   mutate(month = "July", year = "2024")
+```
+Merge the datasets together:
+```{r}
+citi_df=bind_rows(jan_2020, jan_2024, july_2020, july_2024) %>% 
+  distinct() %>% 
+  janitor::clean_names()
+head(citi_df)
+```
