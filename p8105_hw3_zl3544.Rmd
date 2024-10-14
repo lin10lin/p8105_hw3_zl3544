@@ -222,3 +222,25 @@ distribution_sex=merged_df %>%
   theme(axis.text.x = element_text(angle = 33,vjust = 0.88,hjust = 0.77))
 distribution_sex
 ```
+Plot the plot of total activities against age:
+```{r}
+total_activities=merged_df %>% 
+  group_by(seqn, age, sex, education) %>% 
+  summarise(total_activity = sum(MIMS), .groups = "keep")
+ggplot(total_activities, aes(x = age, y = total_activity, color = sex))+
+    geom_point(alpha = .6) +
+  geom_smooth(se = FALSE) + 
+  theme_minimal()+
+  facet_grid(. ~ education)+
+  labs(
+    title = "Total activity against age in men and women",
+    x = "age",
+    y = "total_activity")
+
+```
+* Females with less than a high school education generally exhibit higher levels of activity than males, which is the opposite of the trends seen in the other two groups.
+
+* Comparing the groups, both males and females aged 20 to 40 who have more than a high school education are less active than their counterparts in other educational categories. 
+
+* Regarding overall trends, individuals at all educational levels show a decline in total activity after around age 60. Those with less than a high school education exhibit the highest total activity around age 20, while individuals with a high school equivalent education peak in total activity around age 40. 
+
