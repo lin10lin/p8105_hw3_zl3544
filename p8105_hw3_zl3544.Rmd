@@ -86,3 +86,30 @@ ny_noaa_cleaned %>%
   arrange(desc(n)) 
 ```
 According to the table, 0 is the most common snowfall value.
+
+## Making plots:
+### A two-panel plot showing the average max temperature in January and in July in each station across years
+```{r}
+mean_temps <- ny_noaa_cleaned %>%
+  filter(month %in% c(1, 7)) %>%
+  group_by(id, year, month) %>%
+  summarise(mean_tmax = mean(tmax, na.rm = TRUE), .groups = 'drop') %>%
+  mutate(month = if_else(month == 1, "January", "July"))
+```
+```{r}
+avg_tmax_plot <- ggplot(mean_temps, aes(x = year, y = mean_tmax, color = month)) +
+  geom_point() +            # Add points
+  geom_line() +             # Connect points with lines
+  facet_grid(.~ month, labeller = labeller(month = c(`1` = "January", `7` = "July"))) +
+  labs(title = "Average Max Temperature in January and July by Station",
+       x = "Year",
+       y = "Average Max Temperature (°C)",
+       color = "Month") +
+  theme_minimal() +        # Use a minimal theme
+  theme(legend.position = "bottom")  # Position the legend
+
+# Display the plot
+print(avg_tmax_plot)
+```
+
+The plot indicates that there are significant differences  between the average max temperature in January and in July. The plot shows mean maximum temperatures in January below 0°C for many stations, mean maximum temperatures in July generally around 25°C to 30°C. There are some outliers in January, for example, the year 2005, it indicates that the year 2005 is extremely cold in the winter, there are also some outliers in July. But the temperature in July is always higher than January.
