@@ -168,6 +168,7 @@ merged_df= left_join(demo, accelerometer, by = "seqn") %>%
   mutate(
     sex = factor(sex, levels = c(1, 2), labels = c('male','female')),
     education = factor(education, levels = c(1, 2, 3), labels = c('Less than high school','High school equivalent','More than high school')),
+    minute = as.numeric(gsub("min", "", minute))
     ) 
 head(merged_df)
 ```
@@ -238,9 +239,60 @@ ggplot(total_activities, aes(x = age, y = total_activity, color = sex))+
     y = "total_activity")
 
 ```
+
 * Females with less than a high school education generally exhibit higher levels of activity than males, which is the opposite of the trends seen in the other two groups.
 
 * Comparing the groups, both males and females aged 20 to 40 who have more than a high school education are less active than their counterparts in other educational categories. 
 
 * Regarding overall trends, individuals at all educational levels show a decline in total activity after around age 60. Those with less than a high school education exhibit the highest total activity around age 20, while individuals with a high school equivalent education peak in total activity around age 40. 
 
+## Making a three-panel plot
+```{r}
+plot_less=merged_df %>% 
+  filter(education=='Less than high school') %>% 
+  mutate(hour=ceiling(as.numeric(minute)/60)) %>% 
+  group_by(hour, sex) %>% 
+  summarise(mean_mims=mean(MIMS), .groups='keep') %>% 
+  ggplot(aes(x = hour, y = mean_mims, color = sex))+  
+  geom_point(alpha=.6)+
+  geom_smooth(method = "loess", se = FALSE) +
+  theme_minimal()+
+  theme(legend.position='bottom')+
+  labs(
+    title = "Less than high school",
+    x = "hour",
+    y = "mean MIMS(per hour)")
+
+plot_high=merged_df %>% 
+  filter(education=='High school equivalent') %>% 
+  mutate(hour=ceiling(as.numeric(minute)/60)) %>% 
+  group_by(hour, sex) %>% 
+  summarise(mean_mims=mean(MIMS), .groups='keep') %>% 
+  ggplot(aes(x = hour, y = mean_mims, color = sex))+
+  geom_point(alpha=.6)+
+  geom_smooth(method = "loess", se = FALSE) +
+  theme_minimal()+
+  theme(legend.position='bottom')+
+  labs(
+    title = "High school equivalent",
+    x = "hour",
+    y = "mean MIMS(per hour)")
+
+plot_more=merged_df %>% 
+  filter(education=='More than high school') %>% 
+  mutate(hour=ceiling(as.numeric(minute)/60)) %>% 
+  group_by(hour, sex) %>% 
+  summarise(mean_mims=mean(MIMS), .groups='keep') %>% 
+  ggplot(aes(x = hour, y = mean_mims, color = sex))+
+  geom_point(alpha=.6)+
+  geom_smooth(method = "loess", se = FALSE) +
+  theme_minimal()+
+  theme(legend.position='bottom')+
+  labs(
+    title = "More than high school",
+    x = "hour",
+    y = "mean MIMS(per hour)")
+plot_less+plot_high+plot_more
+```
+
+Overall, activity levels rises from the first 12 hour of a day, and reach their highest point around midday for all educational groups,there is a notable decline in activity during the late evening hours.  Women consistently report higher activity levels than men, particularly in the "High School Equivalent" and "More than High School" groups. 
