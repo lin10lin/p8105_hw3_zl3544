@@ -211,7 +211,11 @@ plot_count_sex_education=merged_df %>%
             vjust = -0.3, hjust = 0.6)
 plot_count_sex_education
 ```
+
+The chart shows that: There are more men than women with highschool equivalent, and more people received more than high school education.
+
 Create a visualization of the age distributions for men and women in each education category:
+
 ```{r}
 distribution_sex=merged_df %>% 
   select(seqn, sex, education) %>% 
@@ -223,7 +227,9 @@ distribution_sex=merged_df %>%
   theme(axis.text.x = element_text(angle = 33,vjust = 0.88,hjust = 0.77))
 distribution_sex
 ```
+
 Plot the plot of total activities against age:
+
 ```{r}
 total_activities=merged_df %>% 
   group_by(seqn, age, sex, education) %>% 
@@ -247,6 +253,7 @@ ggplot(total_activities, aes(x = age, y = total_activity, color = sex))+
 * Regarding overall trends, individuals at all educational levels show a decline in total activity after around age 60. Those with less than a high school education exhibit the highest total activity around age 20, while individuals with a high school equivalent education peak in total activity around age 40. 
 
 ## Making a three-panel plot
+
 ```{r}
 plot_less=merged_df %>% 
   filter(education=='Less than high school') %>% 
@@ -300,6 +307,7 @@ Overall, activity levels rises from the first 12 hour of a day, and reach their 
 # Problem 3
 
 Read the data:
+
 ```{r}
 jan_2020=read.csv('./data/citi/Jan 2020 Citi.csv') %>% 
   mutate(month = "January", year = "2020")
@@ -310,7 +318,9 @@ july_2020=read.csv('./data/citi/July 2020 Citi.csv') %>%
 july_2024=read.csv('./data/citi/July 2024 Citi.csv') %>% 
    mutate(month = "July", year = "2024")
 ```
+
 Merge the datasets together:
+
 ```{r}
 citi_df=bind_rows(jan_2020, jan_2024, july_2020, july_2024) %>% 
   distinct() %>% 
@@ -338,6 +348,7 @@ the_5_starting=citi_df %>%
   head(5)
 the_5_starting
 ```
+The number of member riders are larger compared to casual members in general. The total numbers of casual riders riding in 2020 January, 2020 July, 2024 January, 2024 July are respectively 984, 5637, 2108, 10894. The total numbers of Citi Bike members riding in 2020 January, 2020 July, 2024 January, 2024 July are respectively 11436, 15411, 16753, 36262. 
 
 ## The investigation plot
 Frist, create the group with the medium number information:
@@ -360,6 +371,8 @@ group_plot=citi_df %>%
 group_plot
 ```
 
+Both the data in 2020 and 2024 shows that July has a longer median ride duration compared to January, it may cause by the temperature, people tend to ride a shorter time in the colder weather. The medium duration level of 2024 is lower than 2020. On 2020, the medium peaked at the weekend.
+
 ## Plot the distribution of ride duration:
 ```{r}
 distribution_tide=citi_df %>% 
@@ -376,6 +389,7 @@ distribution_tide=citi_df %>%
     y = "membership type")
 distribution_tide
 ```
+
 The plot shows that most of the time are distributed within 100 minutes, so we plot another plot under the condition of duration under 100 to get a closer look:
 ```{r}
 distribution_tide=citi_df %>% 
@@ -392,3 +406,11 @@ distribution_tide=citi_df %>%
     y = "membership type")
 distribution_tide
 ```
+
+The plot shows that: 
+
+* Among the distribution of duration within the members, the duration in July and January did'nt have a much difference, the distribution of different types of riding also have a similar trend. 
+
+* Among the distribution of duration within the non-members, there are more  eletric bike distributed in the short duration than classic bike, it may because electric bike have a faster speed, so it tend to have a shorter duration, and compare with January with July, January have more density in the shorter duration, it may casue by the Temperature of these two month, people tend to have a shorter ride in the colder days.
+
+* Comparing the distribution between the menbers and the non-menbers, the member tend to have a shorter duration, it may because the first 45 minutes of a member ride in classic bike is free, members tend not to surpass that duration.
