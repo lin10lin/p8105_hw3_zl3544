@@ -1,6 +1,6 @@
 ---
 title: "p8105_hw3_zl3544"
-output: html_document
+output: github_document
 date: "2024-10-14"
 ---
 
